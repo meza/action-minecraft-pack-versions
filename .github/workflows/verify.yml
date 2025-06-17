@@ -1,0 +1,14 @@
+name: "Verify PR"
+
+on:
+  pull_request:
+
+jobs:
+  verify:
+    name: Verify PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate Action
+        uses: meza/action-validate-action@v1.0.1

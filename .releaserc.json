@@ -1,0 +1,30 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "beta",
+      "prerelease": true
+    }
+  ],
+  "tagFormat": "v${version}",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "successComment": ":tada: This issue has been resolved in version ${nextRelease.version} :tada:\\n\\nThe release is available on [GitHub release](<github_release_url>)"
+      }
+    ]
+  ]
+}
