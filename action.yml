@@ -20,27 +20,27 @@ inputs:
   commit_enabled:
     description: 'Create a commit and PR when new versions are added'
     default: 'false'
-    commit_type:
-      description: 'Conventional-commit type (feat / fix / chore …)'
-      default: 'chore'
-    commit_scope:
-      description: 'Optional scope (e.g. pack-format)'
-      default: ''
-    commit_template:
-      description: 'Mustache template – {{versions}} will be replaced'
-      default: '{{type}}{{#scope}}({{scope}}){{/scope}}: update pack-format map for {{versions}}'
-    pr_branch:
-      description: 'Branch to push the change to'
-      default: 'bot/pack-format'
-    pr_base:
-      description: 'Target branch for the PR'
-      default: 'main'
-    auto_merge:
-      description: 'Enable PR auto-merge (true/false)'
-      default: 'true'
-    github_token:
-      description: 'PAT / GITHUB_TOKEN (defaults to workflow token)'
-      default: '${{ github.token }}'
+  commit_type:
+    description: 'Conventional-commit type (feat / fix / chore …)'
+    default: 'chore'
+  commit_scope:
+    description: 'Optional scope (e.g. pack-format)'
+    default: ''
+  commit_template:
+    description: 'Mustache template – {{versions}} will be replaced'
+    default: '{{type}}{{#scope}}({{scope}}){{/scope}}: update pack-format map for {{versions}}'
+  pr_branch:
+    description: 'Branch to push the change to'
+    default: 'bot/pack-format'
+  pr_base:
+    description: 'Target branch for the PR'
+    default: 'main'
+  auto_merge:
+    description: 'Enable PR auto-merge (true/false)'
+    default: 'true'
+  github_token:
+    description: 'PAT / GITHUB_TOKEN (defaults to workflow token)'
+    default: '${{ github.token }}'
 
 runs:
   using: 'composite'
