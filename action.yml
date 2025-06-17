@@ -16,7 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js ${{ inputs.node-version }}
-      uses: actions/setup-node@v4.0.4
+      uses: actions/setup-node@v4.4.0
       id: something
       with:
         node-version: ${{ inputs.node-version }}
