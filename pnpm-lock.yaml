@@ -27,9 +27,6 @@ importers:
       '@types/adm-zip':
         specifier: ^0.5.7
         version: 0.5.7
-      '@types/mustache':
-        specifier: ^4.2.6
-        version: 4.2.6
       '@types/node':
         specifier: ^24.0.3
         version: 24.0.3
@@ -37,7 +34,7 @@ importers:
         specifier: ^10.12.1
         version: 10.12.1
       tsx:
-        specifier: ^4.20.3
+        specifier: 4.20.3
         version: 4.20.3
       typescript:
         specifier: ^5.4.5
@@ -264,9 +261,6 @@ packages:
 
   '@types/adm-zip@0.5.7':
     resolution: {integrity: sha512-DNEs/QvmyRLurdQPChqq0Md4zGvPwHerAJYWk9l2jCbD1VPpnzRJorOdiq4zsw09NFbYnhfsoEhWtxIzXpn2yw==}
-
-  '@types/mustache@4.2.6':
-    resolution: {integrity: sha512-t+8/QWTAhOFlrF1IVZqKnMRJi84EgkIK5Kh0p2JV4OLywUvCwJPFxbJAl7XAow7DVIHsF+xW9f1MVzg0L6Szjw==}
 
   '@types/node@24.0.3':
     resolution: {integrity: sha512-R4I/kzCYAdRLzfiCabn9hxWfbuHS573x+r0dJMkkzThEa7pbrcDWK+9zu3e7aBOouf+rQAciqPFMnxwr0aWgKg==}
@@ -513,8 +507,6 @@ snapshots:
   '@types/adm-zip@0.5.7':
     dependencies:
       '@types/node': 24.0.3
-
-  '@types/mustache@4.2.6': {}
 
   '@types/node@24.0.3':
     dependencies:
