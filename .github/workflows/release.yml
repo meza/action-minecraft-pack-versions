@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Validate Action
-        uses: meza/action-validate-action@v1.0.1
+        uses: meza/action-validate-action@v1.0.4
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
         with:
