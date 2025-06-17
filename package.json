@@ -1,0 +1,25 @@
+{
+  "name": "mc-pack-format-action",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "pnpm run build",
+    "run": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "adm-zip": "^0.5.10",
+    "mustache": "^4.2.0",
+    "p-queue": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^24.0.3",
+    "pnpm": "^10.12.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.4.5"
+  }
+}
