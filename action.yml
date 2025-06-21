@@ -49,10 +49,7 @@ runs:
 outputs:
   path:
     description: 'Path of the generated JSON file'
-    value: ${{ steps.fetcher.outputs.path }}
   new_versions:
     description: 'Comma-separated list of new versions added to the JSON file'
-    value: ${{ steps.fetcher.outputs.new_versions }}
   did_update:
     description: 'Did the updater modify the JSON file?'
-    value: ${{ steps.fetcher.outputs.did_update }}
