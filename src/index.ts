@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import AdmZip from 'adm-zip';
-import core from '@actions/core';
+import {getInput, getBooleanInput, info, error, setOutput, isDebug} from '@actions/core';
 import PQueue from 'p-queue';
 import { cpus, totalmem } from 'os';
 import github from '@actions/github';
@@ -63,18 +63,18 @@ function extractPackVersion(jar: Buffer): { datapack: number; resourcepack: numb
 }
 
 async function main() {
-    const outPath = core.getInput("output_path") || 'formats.json';
-    const commitEnabled = core.getBooleanInput('commit_enabled');
-    const commitType    = core.getInput('commit_type');
-    const commitScope   = core.getInput('commit_scope');
-    const commitTpl     = core.getInput('commit_template');
-    const prBranch      = core.getInput('pr_branch');
-    const prBase        = core.getInput('pr_base');
-    const autoMerge     = core.getBooleanInput('auto_merge');
-    const token         = core.getInput('github_token') || process.env.GITHUB_TOKEN;
+    const outPath = getInput("output_path") || 'formats.json';
+    const commitEnabled = getBooleanInput('commit_enabled');
+    const commitType    = getInput('commit_type');
+    const commitScope   = getInput('commit_scope');
+    const commitTpl     = getInput('commit_template');
+    const prBranch      = getInput('pr_branch');
+    const prBase        = getInput('pr_base');
+    const autoMerge     = getBooleanInput('auto_merge');
+    const token         = getInput('github_token') || process.env.GITHUB_TOKEN;
 
 
-    core.setOutput("path", outPath);
+    setOutput("path", outPath);
 
     const mapping = await loadExisting(outPath);
 
@@ -119,7 +119,7 @@ async function main() {
         }[]
     }>(MANIFEST);
 
-    const referenceVersion = versions.find(v => v.id === core.getInput("cutoff_version", {
+    const referenceVersion = versions.find(v => v.id === getInput("cutoff_version", {
         required: false,
         trimWhitespace: true
     }) || '18w47b');
@@ -131,12 +131,12 @@ async function main() {
 
     // Honour a user-supplied override, else fall back to the heuristic.
     const concurrency =
-        Number(core.getInput("concurrency", {
+        Number(getInput("concurrency", {
             required: false,
             trimWhitespace: true
         }) || 0) || autoConcurrency();
 
-    core.info(`Running with concurrency = ${concurrency}`);
+    info(`Running with concurrency = ${concurrency}`);
 
     const queue = new PQueue({ concurrency: concurrency });
 
@@ -146,8 +146,8 @@ async function main() {
 
         const versionTime = new Date(v.releaseTime || v.time);
         if (versionTime < referenceTime) {
-            if (core.isDebug()) {
-                core.info(`Skipping ${v.id} (${v.releaseTime || v.time}) as it doesn't have a version json inside.`);
+            if (isDebug()) {
+                info(`Skipping ${v.id} (${v.releaseTime || v.time}) as it doesn't have a version json inside.`);
             }
             continue; // Skip versions before the reference version
         }
@@ -161,9 +161,9 @@ async function main() {
                 dirty = true;
                 newVersions.push(v.id);
 
-                core.info(`${v.id}: data=${formats.datapack}, res=${formats.resourcepack}`);
+                info(`${v.id}: data=${formats.datapack}, res=${formats.resourcepack}`);
             } catch (err) {
-                core.error(`Failed to process ${v.id}: ${err}`);
+                error(`Failed to process ${v.id}: ${err}`);
             }
         });
     }
@@ -172,7 +172,7 @@ async function main() {
 
     // Write new versions to GITHUB_OUTPUT for GitHub Actions
     if (newVersions.length > 0) {
-        core.setOutput("new_versions", newVersions.join(','));
+        setOutput("new_versions", newVersions.join(','));
     }
 
     await flush();
@@ -184,7 +184,7 @@ async function main() {
         });
     }
 
-    core.setOutput('did_update', dirty);  // or use your existing logic
+    setOutput('did_update', dirty);  // or use your existing logic
 }
 
 
@@ -263,7 +263,7 @@ async function createCommitAndPR(opts: {
             {pr: `PR_${prNumber}`});
     }
 
-    core.info(`Pushed commit and PR #${prNumber}`);
+    info(`Pushed commit and PR #${prNumber}`);
 }
 
 

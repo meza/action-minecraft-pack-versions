@@ -2,9 +2,9 @@
   "name": "mc-pack-format-action",
   "version": "1.0.0",
   "private": true,
-  "type": "commonjs",
+  "main": "src/index.ts",
   "scripts": {
-    "build": "ncc build src/index.ts -o dist",
+    "build": "ncc build -o dist",
     "prepare": "pnpm run build",
     "run": "tsx src/index.ts"
   },

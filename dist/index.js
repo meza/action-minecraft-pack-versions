@@ -34348,7 +34348,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const promises_1 = __importDefault(__nccwpck_require__(1455));
 const adm_zip_1 = __importDefault(__nccwpck_require__(3746));
-const core_1 = __importDefault(__nccwpck_require__(9999));
+const core_1 = __nccwpck_require__(9999);
 const p_queue_1 = __importDefault(__nccwpck_require__(576));
 const os_1 = __nccwpck_require__(857);
 const github_1 = __importDefault(__nccwpck_require__(5380));
@@ -34412,16 +34412,16 @@ function extractPackVersion(jar) {
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const outPath = core_1.default.getInput("output_path") || 'formats.json';
-        const commitEnabled = core_1.default.getBooleanInput('commit_enabled');
-        const commitType = core_1.default.getInput('commit_type');
-        const commitScope = core_1.default.getInput('commit_scope');
-        const commitTpl = core_1.default.getInput('commit_template');
-        const prBranch = core_1.default.getInput('pr_branch');
-        const prBase = core_1.default.getInput('pr_base');
-        const autoMerge = core_1.default.getBooleanInput('auto_merge');
-        const token = core_1.default.getInput('github_token') || process.env.GITHUB_TOKEN;
-        core_1.default.setOutput("path", outPath);
+        const outPath = (0, core_1.getInput)("output_path") || 'formats.json';
+        const commitEnabled = (0, core_1.getBooleanInput)('commit_enabled');
+        const commitType = (0, core_1.getInput)('commit_type');
+        const commitScope = (0, core_1.getInput)('commit_scope');
+        const commitTpl = (0, core_1.getInput)('commit_template');
+        const prBranch = (0, core_1.getInput)('pr_branch');
+        const prBase = (0, core_1.getInput)('pr_base');
+        const autoMerge = (0, core_1.getBooleanInput)('auto_merge');
+        const token = (0, core_1.getInput)('github_token') || process.env.GITHUB_TOKEN;
+        (0, core_1.setOutput)("path", outPath);
         const mapping = yield loadExisting(outPath);
         let dirty = false; // tracks whether anything new was added
         let flushing = false; // prevents double-flushes
@@ -34453,7 +34453,7 @@ function main() {
         // Optional: final safety-net if nothing else fired
         process.once('beforeExit', flush);
         const { versions } = yield fetchJSON(MANIFEST);
-        const referenceVersion = versions.find(v => v.id === core_1.default.getInput("cutoff_version", {
+        const referenceVersion = versions.find(v => v.id === (0, core_1.getInput)("cutoff_version", {
             required: false,
             trimWhitespace: true
         }) || '18w47b');
@@ -34463,19 +34463,19 @@ function main() {
         const referenceTime = new Date(referenceVersion.releaseTime || referenceVersion.time);
         const newVersions = [];
         // Honour a user-supplied override, else fall back to the heuristic.
-        const concurrency = Number(core_1.default.getInput("concurrency", {
+        const concurrency = Number((0, core_1.getInput)("concurrency", {
             required: false,
             trimWhitespace: true
         }) || 0) || autoConcurrency();
-        core_1.default.info(`Running with concurrency = ${concurrency}`);
+        (0, core_1.info)(`Running with concurrency = ${concurrency}`);
         const queue = new p_queue_1.default({ concurrency: concurrency });
         for (const v of versions) {
             if (mapping[v.id])
                 continue; // Skip already processed versions
             const versionTime = new Date(v.releaseTime || v.time);
             if (versionTime < referenceTime) {
-                if (core_1.default.isDebug()) {
-                    core_1.default.info(`Skipping ${v.id} (${v.releaseTime || v.time}) as it doesn't have a version json inside.`);
+                if ((0, core_1.isDebug)()) {
+                    (0, core_1.info)(`Skipping ${v.id} (${v.releaseTime || v.time}) as it doesn't have a version json inside.`);
                 }
                 continue; // Skip versions before the reference version
             }
@@ -34487,17 +34487,17 @@ function main() {
                     mapping[v.id] = formats;
                     dirty = true;
                     newVersions.push(v.id);
-                    core_1.default.info(`${v.id}: data=${formats.datapack}, res=${formats.resourcepack}`);
+                    (0, core_1.info)(`${v.id}: data=${formats.datapack}, res=${formats.resourcepack}`);
                 }
                 catch (err) {
-                    core_1.default.error(`Failed to process ${v.id}: ${err}`);
+                    (0, core_1.error)(`Failed to process ${v.id}: ${err}`);
                 }
             }));
         }
         yield queue.onIdle();
         // Write new versions to GITHUB_OUTPUT for GitHub Actions
         if (newVersions.length > 0) {
-            core_1.default.setOutput("new_versions", newVersions.join(','));
+            (0, core_1.setOutput)("new_versions", newVersions.join(','));
         }
         yield flush();
         if (dirty && commitEnabled && token) {
@@ -34506,7 +34506,7 @@ function main() {
                 commitType, commitScope, versions: newVersions, autoMerge
             });
         }
-        core_1.default.setOutput('did_update', dirty); // or use your existing logic
+        (0, core_1.setOutput)('did_update', dirty); // or use your existing logic
     });
 }
 function createCommitAndPR(opts) {
@@ -34568,7 +34568,7 @@ function createCommitAndPR(opts) {
       mutation ($pr:ID!){ enablePullRequestAutoMerge
         (input:{pullRequestId:$pr, mergeMethod:SQUASH}) { clientMutationId } }`, { pr: `PR_${prNumber}` });
         }
-        core_1.default.info(`Pushed commit and PR #${prNumber}`);
+        (0, core_1.info)(`Pushed commit and PR #${prNumber}`);
     });
 }
 main().catch(err => {
