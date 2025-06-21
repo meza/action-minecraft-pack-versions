@@ -43,18 +43,8 @@ inputs:
     default: '${{ github.token }}'
 
 runs:
-  using: 'composite'
-  steps:
-    # 1. Set up Node + pnpm
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '22.16.0'
-
-    # 2. Execute the updater
-    - name: Run updater
-      shell: bash
-      id: fetcher
-      run: node dist/index.js
+  using: 'node20'
+  main: 'dist/index.js'
 
 outputs:
   path:
