@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts --format cjs --out-dir dist",
     "prepare": "pnpm run build",
     "run": "tsx src/index.ts"
   },
@@ -20,6 +20,7 @@
     "@types/mustache": "^4.2.6",
     "@types/node": "24.0.3",
     "pnpm": "10.12.1",
+    "tsup": "^8.5.0",
     "tsx": "4.20.3",
     "typescript": "5.8.3"
   }
