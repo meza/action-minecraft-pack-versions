@@ -49,19 +49,12 @@ runs:
     - uses: actions/setup-node@v4
       with:
         node-version: '22.16.0'
-        cache: 'pnpm'
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 9
-        run_install: true   # installs deps via pnpm
 
     # 2. Execute the updater
-    - name: Build & run updater
+    - name: Run updater
       shell: bash
       id: fetcher
-      run: |
-        pnpm exec tsc
-        node dist/index.js
+      run: node dist/index.js
 
 outputs:
   path:
