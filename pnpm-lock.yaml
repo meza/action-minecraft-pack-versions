@@ -37,8 +37,8 @@ importers:
         specifier: ^0.38.3
         version: 0.38.3
       pnpm:
-        specifier: 10.15.0
-        version: 10.15.0
+        specifier: 10.15.1
+        version: 10.15.1
       tsx:
         specifier: 4.20.5
         version: 4.20.5
@@ -319,8 +319,8 @@ packages:
     resolution: {integrity: sha512-MyIV3ZA/PmyBN/ud8vV9XzwTrNtR4jFrObymZYnZqMmW0zA8Z17vnT0rBgFE/TlohB+YCHqXMgZzb3Csp49vqg==}
     engines: {node: '>=14.16'}
 
-  pnpm@10.15.0:
-    resolution: {integrity: sha512-SG68JZ0+mZpOhpHOA7XKxKccvso5Nyqbdiy1AM/fCHPiyxar49lRse4s8BJQPwJ7mLZYTk3yJSTgx0UNnseqew==}
+  pnpm@10.15.1:
+    resolution: {integrity: sha512-NOU4wym1VTAUyo6PRTWZf5YYCh0PYUM5NXRJk1NQ2STiL4YUaCGRJk7DPRRirCFWGv+X9rsYBlNRwWLH6PbeZw==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -585,7 +585,7 @@ snapshots:
 
   p-timeout@6.1.4: {}
 
-  pnpm@10.15.0: {}
+  pnpm@10.15.1: {}
 
   resolve-pkg-maps@1.0.0: {}
 
