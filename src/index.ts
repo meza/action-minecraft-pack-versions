@@ -56,18 +56,18 @@ function extractPackVersion(jar: Buffer): { datapack: number; resourcepack: numb
     if (!entry) throw new Error('version.json not found');
     const ver = JSON.parse(entry.getData().toString('utf8'));
 
-    // Before 1.13, there was just `pack_version: number`
+    // Before 20w45a (1.17), there was just `pack_version: number`
     if (typeof ver.pack_version === 'number') {
         return {datapack: ver.pack_version, resourcepack: ver.pack_version};
     }
 
-    // 1.20+ uses `{data: number, resource: number}`
+    // 20w45a+ uses `{data: number, resource: number}`
     if(ver.pack_version.data || ver.pack_version.resource) {
         const {data, resource} = ver.pack_version;
         return {datapack: data, resourcepack: resource};
     }
 
-    // 25w31a introduced separate data/resource versions
+    // 25w31a+ introduced separate data/resource versions
     if(ver.pack_version.data_major || ver.pack_version.resource_major) {
         const {data_major, resource_major} = ver.pack_version;
         return {datapack: data_major, resourcepack: resource_major};
