@@ -235,6 +235,11 @@ async function createCommitAndPR(opts: {
     if (isDebug()) {
         info('createCommitAndPR called with opts: ' + JSON.stringify(opts));
     }
+
+    if (!github || !github.context || !github.context.repo) {
+        throw new Error('GitHub context is not available. Ensure @actions/github is installed and the action is running in a GitHub Actions workflow.');
+    }
+
     const {owner, repo} = github.context.repo;
     const octo = github.getOctokit(opts.token);
 
