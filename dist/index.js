@@ -34453,12 +34453,18 @@ function main() {
         // Optional: final safety-net if nothing else fired
         process.once('beforeExit', flush);
         const { versions } = yield fetchJSON(MANIFEST);
-        const referenceVersion = versions.find(v => v.id === (0, core_1.getInput)("cutoff_version", {
+        const cutoffVersion = (0, core_1.getInput)("cutoff_version", {
             required: false,
             trimWhitespace: true
-        }) || '18w47b');
+        });
+        const referenceVersion = versions.find(v => v.id === cutoffVersion);
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)(`Cutoff version: ${cutoffVersion}`);
+            (0, core_1.info)(`Reference version found: ${!!referenceVersion}`);
+            (0, core_1.info)(`Reference version details: ${JSON.stringify(referenceVersion)}`);
+        }
         if (!referenceVersion) {
-            throw new Error('Reference version `18w47b` not found in the manifest.');
+            throw new Error(`Reference version ${cutoffVersion} not found in the manifest.`);
         }
         const referenceTime = new Date(referenceVersion.releaseTime || referenceVersion.time);
         const newVersions = [];
