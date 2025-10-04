@@ -34434,6 +34434,7 @@ function main() {
         (0, core_1.setOutput)("path", outPath);
         const mapping = yield loadExisting(outPath);
         let dirty = false; // tracks whether anything new was added
+        let didUpdate = false; // tracks if any new versions were added
         let flushing = false; // prevents double-flushes
         function flush() {
             return __awaiter(this, void 0, void 0, function* () {
@@ -34506,6 +34507,7 @@ function main() {
                     }
                     mapping[v.id] = formats;
                     dirty = true;
+                    didUpdate = true;
                     newVersions.push(v.id);
                     (0, core_1.info)(`${v.id}: data=${formats.datapack}, res=${formats.resourcepack}`);
                 }
@@ -34526,14 +34528,14 @@ function main() {
             (0, core_1.info)(`  commitEnabled = ${commitEnabled}`);
             (0, core_1.info)(`  token = ${token ? 'present' : 'absent'}`);
         }
-        if (dirty && commitEnabled && token) {
+        if (didUpdate && commitEnabled && token) {
             (0, core_1.info)('Creating commit and PR...');
             yield createCommitAndPR({
                 token, outPath, prBranch, prBase, commitTpl,
                 commitType, commitScope, versions: newVersions, autoMerge
             });
         }
-        (0, core_1.setOutput)('did_update', dirty); // or use your existing logic
+        (0, core_1.setOutput)('did_update', didUpdate); // or use your existing logic
     });
 }
 function createCommitAndPR(opts) {

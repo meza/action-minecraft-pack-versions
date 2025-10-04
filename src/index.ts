@@ -89,6 +89,7 @@ async function main() {
     const mapping = await loadExisting(outPath);
 
     let dirty = false;                // tracks whether anything new was added
+    let didUpdate = false;            // tracks if any new versions were added
     let flushing = false;             // prevents double-flushes
 
     async function flush(): Promise<void> {
@@ -182,6 +183,7 @@ async function main() {
                 }
                 mapping[v.id] = formats;
                 dirty = true;
+                didUpdate = true;
                 newVersions.push(v.id);
 
                 info(`${v.id}: data=${formats.datapack}, res=${formats.resourcepack}`);
@@ -207,7 +209,7 @@ async function main() {
         info(`  token = ${token ? 'present' : 'absent'}`);
     }
 
-    if (dirty && commitEnabled && token) {
+    if (didUpdate && commitEnabled && token) {
         info('Creating commit and PR...');
         await createCommitAndPR({
             token, outPath, prBranch, prBase, commitTpl,
@@ -215,7 +217,7 @@ async function main() {
         });
     }
 
-    setOutput('did_update', dirty);  // or use your existing logic
+    setOutput('did_update', didUpdate);  // or use your existing logic
 }
 
 
