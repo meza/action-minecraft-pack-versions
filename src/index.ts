@@ -119,13 +119,22 @@ async function main() {
         }[]
     }>(MANIFEST);
 
-    const referenceVersion = versions.find(v => v.id === getInput("cutoff_version", {
+    const cutoffVersion = getInput("cutoff_version", {
         required: false,
         trimWhitespace: true
-    }) || '18w47b');
-    if (!referenceVersion) {
-        throw new Error('Reference version `18w47b` not found in the manifest.');
+    });
+    const referenceVersion = versions.find(v => v.id === cutoffVersion);
+
+    if(isDebug()) {
+        info(`Cutoff version: ${cutoffVersion}`);
+        info(`Reference version found: ${!!referenceVersion}`);
+        info(`Reference version details: ${JSON.stringify(referenceVersion)}`);
     }
+
+    if (!referenceVersion) {
+        throw new Error(`Reference version ${cutoffVersion} not found in the manifest.`);
+    }
+
     const referenceTime = new Date(referenceVersion.releaseTime || referenceVersion.time);
     const newVersions: string[] = [];
 
