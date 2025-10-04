@@ -34404,7 +34404,9 @@ function extractPackVersion(jar) {
     if (!entry)
         throw new Error('version.json not found');
     const ver = JSON.parse(entry.getData().toString('utf8'));
-    console.log(JSON.stringify(ver));
+    if ((0, core_1.isDebug)()) {
+        (0, core_1.info)(JSON.stringify(ver));
+    }
     if (typeof ver.pack_version === 'number') {
         return { datapack: ver.pack_version, resourcepack: ver.pack_version };
     }

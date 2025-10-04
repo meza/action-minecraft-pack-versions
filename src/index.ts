@@ -55,7 +55,9 @@ function extractPackVersion(jar: Buffer): { datapack: number; resourcepack: numb
     const entry = zip.getEntry('version.json');
     if (!entry) throw new Error('version.json not found');
     const ver = JSON.parse(entry.getData().toString('utf8'));
-    console.log(JSON.stringify(ver));
+    if(isDebug()) {
+        info(JSON.stringify(ver));
+    }
     if (typeof ver.pack_version === 'number') {
         return {datapack: ver.pack_version, resourcepack: ver.pack_version};
     }
