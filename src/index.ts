@@ -3,7 +3,7 @@ import AdmZip from 'adm-zip';
 import {getInput, getBooleanInput, info, error, setOutput, isDebug} from '@actions/core';
 import PQueue from 'p-queue';
 import { cpus, totalmem } from 'os';
-import github from '@actions/github';
+import * as github from '@actions/github';
 import Mustache from 'mustache';
 import { Buffer } from 'node:buffer';
 

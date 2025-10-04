@@ -19,7 +19,7 @@
     "@types/adm-zip": "0.5.7",
     "@types/mustache": "^4.2.6",
     "@types/node": "24.5.2",
-    "@vercel/ncc": "^0.38.3",
+    "@vercel/ncc": "^0.38.4",
     "pnpm": "10.17.1",
     "tsx": "4.20.6",
     "typescript": "5.9.2"
