@@ -55,11 +55,19 @@ function extractPackVersion(jar: Buffer): { datapack: number; resourcepack: numb
     const entry = zip.getEntry('version.json');
     if (!entry) throw new Error('version.json not found');
     const ver = JSON.parse(entry.getData().toString('utf8'));
+    console.log(JSON.stringify(ver));
     if (typeof ver.pack_version === 'number') {
         return {datapack: ver.pack_version, resourcepack: ver.pack_version};
     }
-    const {data, resource} = ver.pack_version;
-    return {datapack: data, resourcepack: resource};
+    if ('data' in ver.pack_version && 'resource' in ver.pack_version) {
+        return {datapack: ver.pack_version.data, resourcepack: ver.pack_version.resource};
+    }
+    // New format: data_major/data_minor, resource_major/resource_minor
+    const normalize = (major: number, minor: number) => minor === 0 ? Number(major) : Number(`${major}.${minor}`);
+    return {
+        datapack: normalize(ver.pack_version.data_major, ver.pack_version.data_minor),
+        resourcepack: normalize(ver.pack_version.resource_major, ver.pack_version.resource_minor)
+    };
 }
 
 async function main() {
@@ -122,7 +130,8 @@ async function main() {
     const cutoffVersion = getInput("cutoff_version", {
         required: false,
         trimWhitespace: true
-    });
+    }) || '18w47a';
+
     const referenceVersion = versions.find(v => v.id === cutoffVersion);
 
     if(isDebug()) {
@@ -166,6 +175,7 @@ async function main() {
             try {
                 const jar = await fetchBuffer(meta.downloads.client.url);
                 const formats = extractPackVersion(jar);
+                console.log(JSON.stringify(formats));
                 mapping[v.id] = formats;
                 dirty = true;
                 newVersions.push(v.id);

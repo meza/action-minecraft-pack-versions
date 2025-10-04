@@ -6,7 +6,7 @@
   "scripts": {
     "build": "ncc build -o dist",
     "prepare": "pnpm run build",
-    "run": "tsx src/index.ts"
+    "run": "cross-env INPUT_commit_enabled=false INPUT_auto_merge=false INPUT_concurrency=1 tsx src/index.ts"
   },
   "dependencies": {
     "@actions/core": "1.11.1",
