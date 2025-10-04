@@ -175,7 +175,9 @@ async function main() {
             try {
                 const jar = await fetchBuffer(meta.downloads.client.url);
                 const formats = extractPackVersion(jar);
-                console.log(JSON.stringify(formats));
+                if(isDebug()) {
+                    info(JSON.stringify(formats));
+                }
                 mapping[v.id] = formats;
                 dirty = true;
                 newVersions.push(v.id);

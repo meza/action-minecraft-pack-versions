@@ -34499,7 +34499,9 @@ function main() {
                 try {
                     const jar = yield fetchBuffer(meta.downloads.client.url);
                     const formats = extractPackVersion(jar);
-                    console.log(JSON.stringify(formats));
+                    if ((0, core_1.isDebug)()) {
+                        (0, core_1.info)(JSON.stringify(formats));
+                    }
                     mapping[v.id] = formats;
                     dirty = true;
                     newVersions.push(v.id);
