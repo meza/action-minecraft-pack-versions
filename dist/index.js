@@ -34520,7 +34520,14 @@ function main() {
             (0, core_1.setOutput)("new_versions", newVersions.join(','));
         }
         yield flush();
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)('Checking if commit/PR is needed:');
+            (0, core_1.info)(`  dirty = ${dirty}`);
+            (0, core_1.info)(`  commitEnabled = ${commitEnabled}`);
+            (0, core_1.info)(`  token = ${token ? 'present' : 'absent'}`);
+        }
         if (dirty && commitEnabled && token) {
+            (0, core_1.info)('Creating commit and PR...');
             yield createCommitAndPR({
                 token, outPath, prBranch, prBase, commitTpl,
                 commitType, commitScope, versions: newVersions, autoMerge
@@ -34531,18 +34538,30 @@ function main() {
 }
 function createCommitAndPR(opts) {
     return __awaiter(this, void 0, void 0, function* () {
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)('createCommitAndPR called with opts: ' + JSON.stringify(opts));
+        }
         const { owner, repo } = github_1.default.context.repo;
         const octo = github_1.default.getOctokit(opts.token);
         // 1. Resolve base SHA
         const baseRef = yield octo.rest.git.getRef({ owner, repo, ref: `heads/${opts.prBase}` });
         const baseSha = baseRef.data.object.sha;
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)(`Resolved base SHA for ${opts.prBase}: ${baseSha}`);
+        }
         // 2. Create or reset branch
         const headRef = `heads/${opts.prBranch}`;
         try {
             yield octo.rest.git.getRef({ owner, repo, ref: headRef });
+            if ((0, core_1.isDebug)()) {
+                (0, core_1.info)(`Branch ${opts.prBranch} exists. Resetting to base SHA.`);
+            }
             yield octo.rest.git.updateRef({ owner, repo, ref: headRef, sha: baseSha, force: true });
         }
         catch (_a) {
+            if ((0, core_1.isDebug)()) {
+                (0, core_1.info)(`Branch ${opts.prBranch} does not exist. Creating from base SHA.`);
+            }
             yield octo.rest.git.createRef({ owner, repo, ref: `refs/${headRef}`, sha: baseSha });
         }
         // 3. Build commit message from template
@@ -34551,29 +34570,51 @@ function createCommitAndPR(opts) {
             scope: opts.commitScope || undefined,
             versions: opts.versions.join(', ')
         });
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)('Generated commit message: ' + commitMsg);
+        }
         // 4. Push the file
         const fileContent = yield promises_1.default.readFile(opts.outPath);
         const pathInRepo = opts.outPath; // same relative path
         let sha;
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)(`Read file content from ${opts.outPath}, size: ${fileContent.length} bytes`);
+        }
         try {
             const existing = yield octo.rest.repos.getContent({ owner, repo, path: pathInRepo, ref: headRef });
             if (!Array.isArray(existing.data) && 'sha' in existing.data)
                 sha = existing.data.sha;
+            if ((0, core_1.isDebug)()) {
+                (0, core_1.info)(`Existing file found at ${pathInRepo}, sha: ${sha}`);
+            }
         }
-        catch ( /* file doesn’t exist yet */_b) { /* file doesn’t exist yet */ }
+        catch (_b) {
+            if ((0, core_1.isDebug)()) {
+                (0, core_1.info)(`No existing file found at ${pathInRepo}, will create new.`);
+            }
+        }
         yield octo.rest.repos.createOrUpdateFileContents({
             owner, repo, branch: opts.prBranch, path: pathInRepo,
             message: commitMsg,
             content: fileContent.toString('base64'),
             sha
         });
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)(`File ${pathInRepo} updated/created in branch ${opts.prBranch}`);
+        }
         // 5. Create or reuse a PR
         const prs = yield octo.rest.pulls.list({
             owner, repo, head: `${owner}:${opts.prBranch}`, base: opts.prBase, state: 'open'
         });
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)(`Found ${prs.data.length} open PR(s) for branch ${opts.prBranch}`);
+        }
         let prNumber;
         if (prs.data.length) {
             prNumber = prs.data[0].number;
+            if ((0, core_1.isDebug)()) {
+                (0, core_1.info)(`Reusing existing PR #${prNumber}`);
+            }
         }
         else {
             const pr = yield octo.rest.pulls.create({
@@ -34581,14 +34622,23 @@ function createCommitAndPR(opts) {
                 body: `Automated update of **${pathInRepo}**.\n\nVersions added: ${opts.versions.join(', ')}.`
             });
             prNumber = pr.data.number;
+            if ((0, core_1.isDebug)()) {
+                (0, core_1.info)(`Created new PR #${prNumber}`);
+            }
         }
         // 6. Enable auto-merge if requested
         if (opts.autoMerge) {
+            if ((0, core_1.isDebug)()) {
+                (0, core_1.info)(`Enabling auto-merge for PR #${prNumber}`);
+            }
             yield octo.graphql(`
       mutation ($pr:ID!){ enablePullRequestAutoMerge
         (input:{pullRequestId:$pr, mergeMethod:SQUASH}) { clientMutationId } }`, { pr: `PR_${prNumber}` });
         }
         (0, core_1.info)(`Pushed commit and PR #${prNumber}`);
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.info)('createCommitAndPR completed.');
+        }
     });
 }
 main().catch(err => {

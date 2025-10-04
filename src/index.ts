@@ -200,7 +200,15 @@ async function main() {
 
     await flush();
 
+    if (isDebug()) {
+        info('Checking if commit/PR is needed:');
+        info(`  dirty = ${dirty}`);
+        info(`  commitEnabled = ${commitEnabled}`);
+        info(`  token = ${token ? 'present' : 'absent'}`);
+    }
+
     if (dirty && commitEnabled && token) {
+        info('Creating commit and PR...');
         await createCommitAndPR({
             token, outPath, prBranch, prBase, commitTpl,
             commitType, commitScope, versions: newVersions, autoMerge
@@ -222,19 +230,31 @@ async function createCommitAndPR(opts: {
     versions: string[];
     autoMerge: boolean;
 }) {
+    if (isDebug()) {
+        info('createCommitAndPR called with opts: ' + JSON.stringify(opts));
+    }
     const {owner, repo} = github.context.repo;
     const octo = github.getOctokit(opts.token);
 
     // 1. Resolve base SHA
     const baseRef = await octo.rest.git.getRef({owner, repo, ref: `heads/${opts.prBase}`});
     const baseSha = baseRef.data.object.sha;
+    if (isDebug()) {
+        info(`Resolved base SHA for ${opts.prBase}: ${baseSha}`);
+    }
 
     // 2. Create or reset branch
     const headRef = `heads/${opts.prBranch}`;
     try {
         await octo.rest.git.getRef({owner, repo, ref: headRef});
+        if (isDebug()) {
+            info(`Branch ${opts.prBranch} exists. Resetting to base SHA.`);
+        }
         await octo.rest.git.updateRef({owner, repo, ref: headRef, sha: baseSha, force: true});
     } catch {
+        if (isDebug()) {
+            info(`Branch ${opts.prBranch} does not exist. Creating from base SHA.`);
+        }
         await octo.rest.git.createRef({owner, repo, ref: `refs/${headRef}`, sha: baseSha});
     }
 
@@ -244,16 +264,28 @@ async function createCommitAndPR(opts: {
         scope: opts.commitScope || undefined,
         versions: opts.versions.join(', ')
     });
+    if (isDebug()) {
+        info('Generated commit message: ' + commitMsg);
+    }
 
     // 4. Push the file
     const fileContent = await fs.readFile(opts.outPath);
     const pathInRepo  = opts.outPath;                // same relative path
     let sha: string | undefined;
-
+    if (isDebug()) {
+        info(`Read file content from ${opts.outPath}, size: ${fileContent.length} bytes`);
+    }
     try {
         const existing = await octo.rest.repos.getContent({owner, repo, path: pathInRepo, ref: headRef});
         if (!Array.isArray(existing.data) && 'sha' in existing.data) sha = existing.data.sha;
-    } catch {/* file doesn’t exist yet */}
+        if (isDebug()) {
+            info(`Existing file found at ${pathInRepo}, sha: ${sha}`);
+        }
+    } catch {
+        if (isDebug()) {
+            info(`No existing file found at ${pathInRepo}, will create new.`);
+        }
+    }
 
     await octo.rest.repos.createOrUpdateFileContents({
         owner, repo, branch: opts.prBranch, path: pathInRepo,
@@ -261,25 +293,39 @@ async function createCommitAndPR(opts: {
         content: fileContent.toString('base64'),
         sha
     });
+    if (isDebug()) {
+        info(`File ${pathInRepo} updated/created in branch ${opts.prBranch}`);
+    }
 
     // 5. Create or reuse a PR
     const prs = await octo.rest.pulls.list({
         owner, repo, head: `${owner}:${opts.prBranch}`, base: opts.prBase, state: 'open'
     });
-
+    if (isDebug()) {
+        info(`Found ${prs.data.length} open PR(s) for branch ${opts.prBranch}`);
+    }
     let prNumber: number;
     if (prs.data.length) {
         prNumber = prs.data[0].number;
+        if (isDebug()) {
+            info(`Reusing existing PR #${prNumber}`);
+        }
     } else {
         const pr = await octo.rest.pulls.create({
             owner, repo, head: opts.prBranch, base: opts.prBase, title: commitMsg,
             body: `Automated update of **${pathInRepo}**.\n\nVersions added: ${opts.versions.join(', ')}.`
         });
         prNumber = pr.data.number;
+        if (isDebug()) {
+            info(`Created new PR #${prNumber}`);
+        }
     }
 
     // 6. Enable auto-merge if requested
     if (opts.autoMerge) {
+        if (isDebug()) {
+            info(`Enabling auto-merge for PR #${prNumber}`);
+        }
         await octo.graphql(`
       mutation ($pr:ID!){ enablePullRequestAutoMerge
         (input:{pullRequestId:$pr, mergeMethod:SQUASH}) { clientMutationId } }`,
@@ -287,6 +333,9 @@ async function createCommitAndPR(opts: {
     }
 
     info(`Pushed commit and PR #${prNumber}`);
+    if (isDebug()) {
+        info('createCommitAndPR completed.');
+    }
 }
 
 
