@@ -137,9 +137,9 @@ async function main() {
         }) || 0) || autoConcurrency();
 
     info(`Running with concurrency = ${concurrency}`);
+    info(`Reference version: ${referenceVersion.id} (${referenceVersion.releaseTime || referenceVersion.time})`);
 
     const queue = new PQueue({ concurrency: concurrency });
-
 
     for (const v of versions) {
         if (mapping[v.id]) continue; // Skip already processed versions

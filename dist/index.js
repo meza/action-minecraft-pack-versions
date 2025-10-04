@@ -34468,6 +34468,7 @@ function main() {
             trimWhitespace: true
         }) || 0) || autoConcurrency();
         (0, core_1.info)(`Running with concurrency = ${concurrency}`);
+        (0, core_1.info)(`Reference version: ${referenceVersion.id} (${referenceVersion.releaseTime || referenceVersion.time})`);
         const queue = new p_queue_1.default({ concurrency: concurrency });
         for (const v of versions) {
             if (mapping[v.id])
