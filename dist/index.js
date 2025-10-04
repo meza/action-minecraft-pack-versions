@@ -34655,10 +34655,12 @@ function createCommitAndPR(opts) {
             (0, core_1.info)(`Found ${prs.data.length} open PR(s) for branch ${opts.prBranch}`);
         }
         let prNumber;
+        let prNodeId;
         if (prs.data.length) {
             prNumber = prs.data[0].number;
+            prNodeId = prs.data[0].node_id;
             if ((0, core_1.isDebug)()) {
-                (0, core_1.info)(`Reusing existing PR #${prNumber}`);
+                (0, core_1.info)(`Reusing existing PR #${prNumber}, node_id: ${prNodeId}`);
             }
         }
         else {
@@ -34667,18 +34669,19 @@ function createCommitAndPR(opts) {
                 body: `Automated update of **${pathInRepo}**.\n\nVersions added: ${opts.versions.join(', ')}.`
             });
             prNumber = pr.data.number;
+            prNodeId = pr.data.node_id;
             if ((0, core_1.isDebug)()) {
-                (0, core_1.info)(`Created new PR #${prNumber}`);
+                (0, core_1.info)(`Created new PR #${prNumber}, node_id: ${prNodeId}`);
             }
         }
         // 6. Enable auto-merge if requested
-        if (opts.autoMerge) {
+        if (opts.autoMerge && prNodeId) {
             if ((0, core_1.isDebug)()) {
-                (0, core_1.info)(`Enabling auto-merge for PR #${prNumber}`);
+                (0, core_1.info)(`Enabling auto-merge for PR #${prNumber} (node_id: ${prNodeId})`);
             }
             yield octo.graphql(`
       mutation ($pr:ID!){ enablePullRequestAutoMerge
-        (input:{pullRequestId:$pr, mergeMethod:SQUASH}) { clientMutationId } }`, { pr: `PR_${prNumber}` });
+        (input:{pullRequestId:$pr, mergeMethod:SQUASH}) { clientMutationId } }`, { pr: prNodeId });
         }
         (0, core_1.info)(`Pushed commit and PR #${prNumber}`);
         if ((0, core_1.isDebug)()) {
