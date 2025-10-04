@@ -34349,7 +34349,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const promises_1 = __importDefault(__nccwpck_require__(1455));
 const adm_zip_1 = __importDefault(__nccwpck_require__(3746));
 const core_1 = __nccwpck_require__(9999);
-const p_queue_1 = __importDefault(__nccwpck_require__(576));
+const p_queue_1 = __importDefault(__nccwpck_require__(8465));
 const os_1 = __nccwpck_require__(857);
 const github_1 = __importDefault(__nccwpck_require__(5380));
 const mustache_1 = __importDefault(__nccwpck_require__(7208));
@@ -34404,11 +34404,19 @@ function extractPackVersion(jar) {
     if (!entry)
         throw new Error('version.json not found');
     const ver = JSON.parse(entry.getData().toString('utf8'));
+    console.log(JSON.stringify(ver));
     if (typeof ver.pack_version === 'number') {
         return { datapack: ver.pack_version, resourcepack: ver.pack_version };
     }
-    const { data, resource } = ver.pack_version;
-    return { datapack: data, resourcepack: resource };
+    if ('data' in ver.pack_version && 'resource' in ver.pack_version) {
+        return { datapack: ver.pack_version.data, resourcepack: ver.pack_version.resource };
+    }
+    // New format: data_major/data_minor, resource_major/resource_minor
+    const normalize = (major, minor) => minor === 0 ? Number(major) : Number(`${major}.${minor}`);
+    return {
+        datapack: normalize(ver.pack_version.data_major, ver.pack_version.data_minor),
+        resourcepack: normalize(ver.pack_version.resource_major, ver.pack_version.resource_minor)
+    };
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -34456,7 +34464,7 @@ function main() {
         const cutoffVersion = (0, core_1.getInput)("cutoff_version", {
             required: false,
             trimWhitespace: true
-        });
+        }) || '18w47a';
         const referenceVersion = versions.find(v => v.id === cutoffVersion);
         if ((0, core_1.isDebug)()) {
             (0, core_1.info)(`Cutoff version: ${cutoffVersion}`);
@@ -34491,6 +34499,7 @@ function main() {
                 try {
                     const jar = yield fetchBuffer(meta.downloads.client.url);
                     const formats = extractPackVersion(jar);
+                    console.log(JSON.stringify(formats));
                     mapping[v.id] = formats;
                     dirty = true;
                     newVersions.push(v.id);
@@ -36475,7 +36484,7 @@ module.exports = parseParams
 
 /***/ }),
 
-/***/ 576:
+/***/ 8465:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -36619,7 +36628,7 @@ function pTimeout(promise, options) {
 	return cancelablePromise;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/p-queue@8.1.0/node_modules/p-queue/dist/lower-bound.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/p-queue@8.1.1/node_modules/p-queue/dist/lower-bound.js
 // Port of lower_bound from https://en.cppreference.com/w/cpp/algorithm/lower_bound
 // Used to compute insertion index to keep queue sorted after insertion
 function lowerBound(array, value, comparator) {
@@ -36639,7 +36648,7 @@ function lowerBound(array, value, comparator) {
     return first;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/p-queue@8.1.0/node_modules/p-queue/dist/priority-queue.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/p-queue@8.1.1/node_modules/p-queue/dist/priority-queue.js
 
 class PriorityQueue {
     #queue = [];
@@ -36680,7 +36689,7 @@ class PriorityQueue {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/p-queue@8.1.0/node_modules/p-queue/dist/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/p-queue@8.1.1/node_modules/p-queue/dist/index.js
 
 
 
@@ -36900,9 +36909,9 @@ class PQueue extends eventemitter3 {
         return new Promise((resolve, reject) => {
             this.#queue.enqueue(async () => {
                 this.#pending++;
-                this.#intervalCount++;
                 try {
                     options.signal?.throwIfAborted();
+                    this.#intervalCount++;
                     let operation = function_({ signal: options.signal });
                     if (options.timeout) {
                         operation = pTimeout(Promise.resolve(operation), { milliseconds: options.timeout });
