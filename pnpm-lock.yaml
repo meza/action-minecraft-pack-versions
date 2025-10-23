@@ -31,8 +31,8 @@ importers:
         specifier: ^4.2.6
         version: 4.2.6
       '@types/node':
-        specifier: 24.7.2
-        version: 24.7.2
+        specifier: 24.8.0
+        version: 24.8.0
       '@vercel/ncc':
         specifier: ^0.38.4
         version: 0.38.4
@@ -277,8 +277,8 @@ packages:
   '@types/mustache@4.2.6':
     resolution: {integrity: sha512-t+8/QWTAhOFlrF1IVZqKnMRJi84EgkIK5Kh0p2JV4OLywUvCwJPFxbJAl7XAow7DVIHsF+xW9f1MVzg0L6Szjw==}
 
-  '@types/node@24.7.2':
-    resolution: {integrity: sha512-/NbVmcGTP+lj5oa4yiYxxeBjRivKQ5Ns1eSZeB99ExsEQ6rX5XYU1Zy/gGxY/ilqtD4Etx9mKyrPxZRetiahhA==}
+  '@types/node@24.8.0':
+    resolution: {integrity: sha512-5x08bUtU8hfboMTrJ7mEO4CpepS9yBwAqcL52y86SWNmbPX8LVbNs3EP4cNrIZgdjk2NAlP2ahNihozpoZIxSg==}
 
   '@vercel/ncc@0.38.4':
     resolution: {integrity: sha512-8LwjnlP39s08C08J5NstzriPvW1SP8Zfpp1BvC2sI35kPeZnHfxVkCwu4/+Wodgnd60UtT1n8K8zw+Mp7J9JmQ==}
@@ -528,11 +528,11 @@ snapshots:
 
   '@types/adm-zip@0.5.7':
     dependencies:
-      '@types/node': 24.7.2
+      '@types/node': 24.8.0
 
   '@types/mustache@4.2.6': {}
 
-  '@types/node@24.7.2':
+  '@types/node@24.8.0':
     dependencies:
       undici-types: 7.14.0
 
