@@ -28,13 +28,13 @@ importers:
         specifier: 0.5.7
         version: 0.5.7
       '@types/mustache':
-        specifier: ^4.2.6
+        specifier: 4.2.6
         version: 4.2.6
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
       '@vercel/ncc':
-        specifier: ^0.38.4
+        specifier: 0.38.4
         version: 0.38.4
       pnpm:
         specifier: 10.20.0
