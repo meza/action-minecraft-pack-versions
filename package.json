@@ -13,7 +13,7 @@
     "@actions/github": "6.0.1",
     "adm-zip": "0.5.16",
     "mustache": "4.2.0",
-    "p-queue": "9.0.1"
+    "p-queue": "9.1.0"
   },
   "devDependencies": {
     "@types/adm-zip": "0.5.7",
