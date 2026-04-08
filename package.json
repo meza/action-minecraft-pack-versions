@@ -11,7 +11,7 @@
   "dependencies": {
     "@actions/core": "3.0.0",
     "@actions/github": "9.0.0",
-    "adm-zip": "0.5.16",
+    "adm-zip": "0.5.17",
     "mustache": "4.2.0",
     "p-queue": "9.1.0"
   },
