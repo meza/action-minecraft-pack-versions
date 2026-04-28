@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@actions/core": "3.0.0",
-    "@actions/github": "9.0.0",
+    "@actions/github": "9.1.1",
     "adm-zip": "0.5.17",
     "mustache": "4.2.0",
     "p-queue": "9.1.1"
