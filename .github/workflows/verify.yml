@@ -11,4 +11,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Validate Action
-        uses: meza/action-validate-action@v1.0.4
+        uses: meza/action-validate-action@v1.0.8
