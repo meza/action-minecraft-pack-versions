@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
       - name: Validate Action
         uses: meza/action-validate-action@v1.0.4
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v4.2.2
         with:
           extra_plugins: |
             conventional-changelog-conventionalcommits
