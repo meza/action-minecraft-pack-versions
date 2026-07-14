@@ -6,7 +6,7 @@ on:
 jobs:
   verify:
     name: Verify PR
-    runs-on: self-hosted
+    runs-on: meza-ubuntu-slim
     steps:
       - name: Checkout
         uses: actions/checkout@v6.0.3
