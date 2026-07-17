@@ -15,8 +15,8 @@ importers:
         specifier: 9.0.0
         version: 9.0.0
       adm-zip:
-        specifier: 0.5.18
-        version: 0.5.18
+        specifier: 0.6.0
+        version: 0.6.0
       mustache:
         specifier: 4.2.0
         version: 4.2.0
@@ -277,9 +277,9 @@ packages:
     resolution: {integrity: sha512-cUjIE5P2YY1n+Kt9rFIazMMpGoPn1Fic04rOmTkElMkiDP5oszGfERMpo2shVkFKDL7rVppdM2pqJKC59shQWQ==}
     hasBin: true
 
-  adm-zip@0.5.18:
-    resolution: {integrity: sha512-ufJnssQGbxzLNS1Ho9bCtX4rQKCCvoVuDLHoJyc3F9dOGDB4BkWs2Ci0kv53lqocAEQ/Cbi+I2XCsNYGqVYqng==}
-    engines: {node: '>=12.0'}
+  adm-zip@0.6.0:
+    resolution: {integrity: sha512-XleryMhbuksdKtofnWZ9Sk+4CUTbms4Mb/EU32SZwToAyZ5RgVos/ki8n+yr0LWHOGKuakbXTuuYNHLQjhddgg==}
+    engines: {node: '>=14.0'}
 
   before-after-hook@4.0.0:
     resolution: {integrity: sha512-q6tR3RPqIB1pMiTRMFcZwuG5T8vwp+vUvEG0vuI6B+Rikh5BfPp2fQ82c925FOs+b0lcFQ8CFrL+KbilfZFhOQ==}
@@ -515,7 +515,7 @@ snapshots:
 
   '@vercel/ncc@0.44.1': {}
 
-  adm-zip@0.5.18: {}
+  adm-zip@0.6.0: {}
 
   before-after-hook@4.0.0: {}
 
