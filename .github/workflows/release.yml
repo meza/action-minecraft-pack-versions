@@ -13,19 +13,19 @@ env:
 
 jobs:
   Release:
-    runs-on: self-hosted
+    runs-on: meza-ubuntu-slim
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Validate Action
-        uses: cardinalby/schema-validator-action@2166123eb256fa40baef7e22ab1379708425efc7 # 3.1.1
+        uses: cardinalby/schema-validator-action@2166123eb256fa40baef7e22ab1379708425efc7 # v3.1.1
         with:
           file: action.yml
           schema: https://raw.githubusercontent.com/SchemaStore/schemastore/773fe876b57bb3d35693177b626164570a6bac49/src/schemas/json/github-action.json
 
       - name: Install pnpm
         id: pnpm-install
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # 6.0.9
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
         with:
           version: latest
           run_install: false
