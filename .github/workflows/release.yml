@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+env:
+  # renovate: datasource=node-version depName=node versioning=node
+  NODE_VERSION: 24
+
 jobs:
   Release:
     runs-on: self-hosted
@@ -18,14 +22,17 @@ jobs:
         with:
           file: action.yml
           schema: https://raw.githubusercontent.com/SchemaStore/schemastore/773fe876b57bb3d35693177b626164570a6bac49/src/schemas/json/github-action.json
-      - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v4.2.2
+
+      - name: Use Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          extra_plugins: |
-            conventional-changelog-conventionalcommits
-            @semantic-release/commit-analyzer
-            @semantic-release/release-notes-generator
-            @semantic-release/changelog
-            @semantic-release/github
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: "🧵 Install semantic release"
+        run: npm i --location=global @meza/mezas-conventional-changelog semantic-release semantic-release-discord-notifier conventional-changelog-conventionalcommits @semantic-release/github @semantic-release/changelog @semantic-release/exec semantic-release-export-data semantic-release-discord
+
+      - name: Release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+        run: npx semantic-release
