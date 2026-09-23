@@ -1,14 +1,14 @@
 # Minecraft Pack Versions Action
 
-A GitHub Action that creates and maintains a JSON file mapping Minecraft versions to their datapack and resourcepack format numbers. This action automatically fetches Minecraft version data from Mojang's official servers, extracts pack format information from client JAR files, and can optionally create automated pull requests with updates.
+A GitHub Action that creates and maintains a JSON file mapping Minecraft versions to their datapack and resourcepack format numbers and release times. This action automatically fetches Minecraft version data from Mojang's official servers, extracts pack format information from client JAR files, and can optionally create automated pull requests with updates.
 
 ## What it does
 
 This action:
 1. 📥 Fetches the official Minecraft version manifest from Mojang
-2. 🔍 Downloads and analyzes client JAR files for each Minecraft version
+2. 🔍 Downloads and analyzes client JAR files for eligible versions missing from the output file
 3. 📊 Extracts datapack and resourcepack format numbers from `version.json` inside each JAR
-4. 💾 Creates/updates a JSON file with version-to-format mappings
+4. 💾 Creates/updates a JSON file with version-to-format mappings and release times
 5. 🔄 Optionally creates automated commits and pull requests with new data
 6. ⚡ Processes multiple versions concurrently for faster execution
 
@@ -21,6 +21,10 @@ on:
     - cron: '0 12 * * *'  # Daily at noon
   workflow_dispatch:      # Manual trigger
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   update-formats:
     runs-on: ubuntu-latest
@@ -32,6 +36,8 @@ jobs:
           commit_enabled: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+When using `GITHUB_TOKEN` to create pull requests, enable **Allow GitHub Actions to create and approve pull requests** under the repository's **Settings → Actions → General → Workflow permissions**. Organization policy may control this setting.
 
 ## Inputs
 
@@ -46,14 +52,18 @@ The generated JSON structure looks like:
 {
   "1.20.4": {
     "datapack": 26,
-    "resourcepack": 22
+    "resourcepack": 22,
+    "releaseTime": "2023-12-07T12:56:20+00:00"
   },
   "1.21": {
     "datapack": 48,
-    "resourcepack": 34
+    "resourcepack": 34,
+    "releaseTime": "2024-06-13T09:24:03+01:00"
   }
 }
 ```
+
+`releaseTime` comes from the Minecraft version manifest. Existing entries missing it are filled in on the next run without downloading their client JARs. Entries absent from the manifest remain unchanged.
 
 ### `concurrency`
 - **Description**: Number of parallel downloads to process simultaneously
@@ -72,11 +82,11 @@ The generated JSON structure looks like:
 - **Default**: `'18w47b'`
 - **Required**: No
 - **Example**: `'1.20.0'`, `'23w31a'`
-- **Effects**: Only versions released on or after this version will be processed
+- **Effects**: New versions released before this version are skipped. Existing entries can receive `releaseTime` regardless of the cutoff.
 - **Note**: Use snapshot IDs (like `18w47b`) or release versions (like `1.20.0`)
 
 ### `commit_enabled`
-- **Description**: Whether to create a commit and PR when new versions are added
+- **Description**: Whether to create a commit and PR when the output file changes, including release-time backfills
 - **Default**: `'false'`
 - **Required**: No
 - **Possible values**: `'true'`, `'false'`
@@ -98,13 +108,13 @@ The generated JSON structure looks like:
 
 ### `commit_template`
 - **Description**: Mustache template for commit messages
-- **Default**: `'{{type}}{{#scope}}({{scope}}){{/scope}}: update pack-format map for {{versions}}'`
+- **Default**: `'{{type}}{{#scope}}({{scope}}){{/scope}}: update pack-format map{{#versions}} for {{versions}}{{/versions}}'`
 - **Required**: No
 - **Template variables**:
   - `{{type}}`: The commit type
   - `{{scope}}`: The commit scope (if provided)
-  - `{{versions}}`: Comma-separated list of new versions
-- **Example**: `'{{type}}: add Minecraft {{versions}} pack formats'`
+  - `{{versions}}`: Comma-separated list of new versions; empty when no new versions were added
+- **Example**: `'{{type}}: update Minecraft data{{#versions}} for {{versions}}{{/versions}}'`
 
 ### `pr_branch`
 - **Description**: Branch name to push changes to
@@ -134,6 +144,7 @@ The generated JSON structure looks like:
 - **Required**: No (when `commit_enabled` is `false`)
 - **Effects**: Used for creating commits, branches, and pull requests
 - **Note**: Must have `contents: write` and `pull-requests: write` permissions
+- **Note**: With `GITHUB_TOKEN`, the repository must also allow GitHub Actions to create pull requests
 
 ## Outputs
 
@@ -152,6 +163,7 @@ The generated JSON structure looks like:
 - **Description**: Boolean indicating if the JSON file was modified
 - **Example**: `'true'` or `'false'`
 - **Usage**: Access via `${{ steps.step-id.outputs.did_update }}`
+- **Note**: `true` when new versions are added or existing entries gain `releaseTime`
 
 ## Advanced Usage Examples
 
@@ -165,7 +177,7 @@ The generated JSON structure looks like:
     commit_enabled: true
     commit_type: 'feat'
     commit_scope: 'minecraft'
-    commit_template: '{{type}}({{scope}}): add pack formats for {{versions}}'
+    commit_template: '{{type}}({{scope}}): update Minecraft data{{#versions}} for {{versions}}{{/versions}}'
     pr_branch: 'auto/minecraft-formats'
     pr_base: 'develop'
     auto_merge: false
@@ -216,7 +228,7 @@ steps:
 - **Memory Usage**: Each concurrent job uses approximately 80MB of RAM while processing JAR files
 - **Network**: Downloads JAR files from Mojang's CDN (typically 10-50MB per version)
 - **Rate Limiting**: Mojang's APIs don't have strict rate limits, but the action includes reasonable defaults
-- **Caching**: The action reads existing JSON files to avoid reprocessing known versions
+- **Caching**: The action reads existing JSON files to avoid downloading JARs for known versions; it fills missing `releaseTime` values from the manifest
 
 ### Data Source
 - **Version Manifest**: `https://launchermeta.mojang.com/mc/game/version_manifest.json`
@@ -245,7 +257,7 @@ Error: Reference version `18w47b` not found in the manifest.
 Error: Resource not accessible by integration
 ```
 - **Cause**: Insufficient GitHub token permissions
-- **Solution**: Ensure the token has `contents: write` and `pull-requests: write` permissions
+- **Solution**: Ensure the token has `contents: write` and `pull-requests: write` permissions. With `GITHUB_TOKEN`, also allow GitHub Actions to create pull requests in the repository's Actions settings.
 
 **❌ "Out of memory" errors**
 ```

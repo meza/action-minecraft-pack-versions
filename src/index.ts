@@ -10,7 +10,7 @@ import { Buffer } from 'node:buffer';
 /** Approximate bytes of heap required while a JAR is in memory. */
 const EST_MEM_PER_JOB = 80 * 2**20;   // 80 MiB
 
-type Mapping = Record<string, { datapack: number; resourcepack: number }>;
+type Mapping = Record<string, { datapack: number; resourcepack: number; releaseTime?: string }>;
 
 const MANIFEST = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
 
@@ -88,8 +88,8 @@ async function main() {
 
     const mapping = await loadExisting(outPath);
 
-    let dirty = false;                // tracks whether anything new was added
-    let didUpdate = false;            // tracks if any new versions were added
+    let dirty = false;                // tracks whether the output file changed
+    let didUpdate = false;            // tracks new versions or release-time backfills
     let flushing = false;             // prevents double-flushes
 
     async function flush(): Promise<void> {
@@ -163,7 +163,15 @@ async function main() {
     const queue = new PQueue({ concurrency: concurrency });
 
     for (const v of versions) {
-        if (mapping[v.id]) continue; // Skip already processed versions
+        if (mapping[v.id]) {
+            if (!mapping[v.id].releaseTime) {
+                if (!v.releaseTime) throw new Error(`Release time missing for ${v.id} in the manifest.`);
+                mapping[v.id].releaseTime = v.releaseTime;
+                dirty = true;
+                didUpdate = true;
+            }
+            continue; // Pack formats are already known
+        }
 
         const versionTime = new Date(v.releaseTime || v.time);
         if (versionTime < referenceTime) {
@@ -172,6 +180,7 @@ async function main() {
             }
             continue; // Skip versions before the reference version
         }
+        if (!v.releaseTime) throw new Error(`Release time missing for ${v.id} in the manifest.`);
         queue.add(async () => {
             const meta = await fetchJSON<{ downloads: { client: { url: string } } }>(v.url);
 
@@ -181,7 +190,7 @@ async function main() {
                 if(isDebug()) {
                     info(JSON.stringify(formats));
                 }
-                mapping[v.id] = formats;
+                mapping[v.id] = {...formats, releaseTime: v.releaseTime};
                 dirty = true;
                 didUpdate = true;
                 newVersions.push(v.id);
@@ -322,7 +331,8 @@ async function createCommitAndPR(opts: {
     } else {
         const pr = await octo.rest.pulls.create({
             owner, repo, head: opts.prBranch, base: opts.prBase, title: commitMsg,
-            body: `Automated update of **${pathInRepo}**.\n\nVersions added: ${opts.versions.join(', ')}.`
+            body: `Automated update of **${pathInRepo}**.` +
+                (opts.versions.length ? `\n\nVersions added: ${opts.versions.join(', ')}.` : '')
         });
         prNumber = pr.data.number;
         prNodeId = pr.data.node_id;

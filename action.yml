@@ -1,5 +1,5 @@
 name: 'Minecraft pack-format updater'
-description: 'Creates/updates a JSON map of Minecraft versions to datapack/resource-pack formats'
+description: 'Creates/updates a JSON map of Minecraft versions to datapack/resource-pack formats and release times'
 author: 'Meza'
 branding:
   icon: 'database'
@@ -18,7 +18,7 @@ inputs:
     default: '18w47b'
     required: false
   commit_enabled:
-    description: 'Create a commit and PR when new versions are added'
+    description: 'Create a commit and PR when the output file changes'
     default: 'false'
   commit_type:
     description: 'Conventional-commit type (feat / fix / chore …)'
@@ -27,8 +27,8 @@ inputs:
     description: 'Optional scope (e.g. pack-format)'
     default: ''
   commit_template:
-    description: 'Mustache template – {{versions}} will be replaced'
-    default: '{{type}}{{#scope}}({{scope}}){{/scope}}: update pack-format map for {{versions}}'
+    description: 'Mustache template; {{versions}} lists newly added versions'
+    default: '{{type}}{{#scope}}({{scope}}){{/scope}}: update pack-format map{{#versions}} for {{versions}}{{/versions}}'
   pr_branch:
     description: 'Branch to push the change to'
     default: 'bot/pack-format'

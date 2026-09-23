@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc --noEmit && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --minify --outfile=dist/index.js",
+    "test": "pnpm run build && node --test test/release-time.test.mjs",
     "prepare": "pnpm run build",
     "run": "cross-env INPUT_commit_enabled=false INPUT_auto_merge=false INPUT_concurrency=1 tsx src/index.ts"
   },
