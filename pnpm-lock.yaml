@@ -33,9 +33,9 @@ importers:
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
-      '@vercel/ncc':
-        specifier: 0.44.1
-        version: 0.44.1
+      esbuild:
+        specifier: 0.28.1
+        version: 0.28.1
       pnpm:
         specifier: 11.8.0
         version: 11.8.0
@@ -393,10 +393,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@vercel/ncc@0.44.1':
-    resolution: {integrity: sha512-cUjIE5P2YY1n+Kt9rFIazMMpGoPn1Fic04rOmTkElMkiDP5oszGfERMpo2shVkFKDL7rVppdM2pqJKC59shQWQ==}
-    hasBin: true
-
   adm-zip@0.6.0:
     resolution: {integrity: sha512-XleryMhbuksdKtofnWZ9Sk+4CUTbms4Mb/EU32SZwToAyZ5RgVos/ki8n+yr0LWHOGKuakbXTuuYNHLQjhddgg==}
     engines: {node: '>=14.0'}
@@ -697,8 +693,6 @@ snapshots:
 
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
-
-  '@vercel/ncc@0.44.1': {}
 
   adm-zip@0.6.0: {}
 

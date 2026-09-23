@@ -4,7 +4,7 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "build": "ncc build -o dist",
+    "build": "tsc --noEmit && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --minify --outfile=dist/index.js",
     "prepare": "pnpm run build",
     "run": "cross-env INPUT_commit_enabled=false INPUT_auto_merge=false INPUT_concurrency=1 tsx src/index.ts"
   },
@@ -19,7 +19,7 @@
     "@types/adm-zip": "0.5.8",
     "@types/mustache": "4.2.6",
     "@types/node": "24.12.2",
-    "@vercel/ncc": "0.44.1",
+    "esbuild": "0.28.1",
     "pnpm": "11.8.0",
     "tsx": "4.23.1",
     "typescript": "7.0.2"
