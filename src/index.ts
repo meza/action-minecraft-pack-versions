@@ -259,19 +259,19 @@ async function createCommitAndPR(opts: {
         info(`Resolved base SHA for ${opts.prBase}: ${baseSha}`);
     }
 
-    // 2. Create or reset branch
+    // 2. Determine whether the branch already exists without changing it.
     const headRef = `heads/${opts.prBranch}`;
+    let branchExists = true;
     try {
         await octo.rest.git.getRef({owner, repo, ref: headRef});
-        if (isDebug()) {
-            info(`Branch ${opts.prBranch} exists. Resetting to base SHA.`);
+    } catch (err) {
+        if (!(typeof err === 'object' && err !== null && 'status' in err && err.status === 404)) {
+            throw err;
         }
-        await octo.rest.git.updateRef({owner, repo, ref: headRef, sha: baseSha, force: true});
-    } catch {
+        branchExists = false;
         if (isDebug()) {
-            info(`Branch ${opts.prBranch} does not exist. Creating from base SHA.`);
+            info(`Branch ${opts.prBranch} does not exist and will be created.`);
         }
-        await octo.rest.git.createRef({owner, repo, ref: `refs/${headRef}`, sha: baseSha});
     }
 
     // 3. Build commit message from template
@@ -284,33 +284,37 @@ async function createCommitAndPR(opts: {
         info('Generated commit message: ' + commitMsg);
     }
 
-    // 4. Push the file
+    // 4. Build the complete commit before publishing it to the branch.
     const fileContent = await fs.readFile(opts.outPath);
     const pathInRepo  = opts.outPath;                // same relative path
-    let sha: string | undefined;
     if (isDebug()) {
         info(`Read file content from ${opts.outPath}, size: ${fileContent.length} bytes`);
     }
-    try {
-        const existing = await octo.rest.repos.getContent({owner, repo, path: pathInRepo, ref: headRef});
-        if (!Array.isArray(existing.data) && 'sha' in existing.data) sha = existing.data.sha;
-        if (isDebug()) {
-            info(`Existing file found at ${pathInRepo}, sha: ${sha}`);
-        }
-    } catch {
-        if (isDebug()) {
-            info(`No existing file found at ${pathInRepo}, will create new.`);
-        }
-    }
-
-    await octo.rest.repos.createOrUpdateFileContents({
-        owner, repo, branch: opts.prBranch, path: pathInRepo,
-        message: commitMsg,
+    const baseCommit = await octo.rest.git.getCommit({owner, repo, commit_sha: baseSha});
+    const blob = await octo.rest.git.createBlob({
+        owner, repo,
         content: fileContent.toString('base64'),
-        sha
+        encoding: 'base64'
     });
+    const tree = await octo.rest.git.createTree({
+        owner, repo,
+        base_tree: baseCommit.data.tree.sha,
+        tree: [{path: pathInRepo, mode: '100644', type: 'blob', sha: blob.data.sha}]
+    });
+    const commit = await octo.rest.git.createCommit({
+        owner, repo,
+        message: commitMsg,
+        tree: tree.data.sha,
+        parents: [baseSha]
+    });
+
+    if (branchExists) {
+        await octo.rest.git.updateRef({owner, repo, ref: headRef, sha: commit.data.sha, force: true});
+    } else {
+        await octo.rest.git.createRef({owner, repo, ref: `refs/${headRef}`, sha: commit.data.sha});
+    }
     if (isDebug()) {
-        info(`File ${pathInRepo} updated/created in branch ${opts.prBranch}`);
+        info(`Published commit ${commit.data.sha} to branch ${opts.prBranch}`);
     }
 
     // 5. Create or reuse a PR
