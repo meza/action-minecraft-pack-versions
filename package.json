@@ -17,7 +17,7 @@
     "p-queue": "9.1.1"
   },
   "devDependencies": {
-    "@types/adm-zip": "0.5.8",
+    "@types/adm-zip": "0.6.0",
     "@types/mustache": "4.2.6",
     "@types/node": "24.12.2",
     "esbuild": "0.28.1",
